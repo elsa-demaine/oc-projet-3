@@ -5,16 +5,15 @@
     android:layout_height="match_parent"
     android:weightSum="2">
 
-    <com.google.android.gms.maps.MapView
-        android:id="@+id/mapView"
+    <fragment
+        android:id="@+id/map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:background="@color/colorGrey"
-    />
+        android:layout_height="0dp"
+        android:layout_weight="1" />
 
-    <ListView
-        android:id="@+id/listView_Kennels"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView_Kennels"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"

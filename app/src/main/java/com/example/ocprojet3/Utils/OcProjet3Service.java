@@ -1,4 +1,4 @@
-package com.example.ocprojet3;
+package com.example.ocprojet3.Utils;
 
 import com.example.ocprojet3.Models.Dog;
 import com.example.ocprojet3.Models.Kennel;
@@ -13,11 +13,10 @@ import retrofit2.http.GET;
 import retrofit2.http.Query;
 
 public interface OcProjet3Service {
+    String baseUrl = "http://82.64.161.207:8080/oc-projet-3/";
+
     @GET("api.php?kennels")
     Observable<List<Kennel>> getKennels();
-
-    //@GET("api.php?dogs")
-    //Observable<List<Dog>> getDogs();
 
     @GET("api.php")
     Observable<List<Dog>> getDogs(@Query("kennelId") String kennelId);
@@ -26,7 +25,7 @@ public interface OcProjet3Service {
     Observable<Dog> getDog(@Query("dogId") String dogId);
 
     Retrofit retrofit = new Retrofit.Builder()
-        .baseUrl("http://82.64.161.207:8080/oc-projet-3/")
+        .baseUrl(baseUrl)
         .addConverterFactory(GsonConverterFactory.create())
         .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
         .build();

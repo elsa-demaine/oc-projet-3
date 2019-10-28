@@ -1,9 +1,17 @@
 package com.example.ocprojet3.Models;
 
+import android.util.Log;
+import android.widget.ImageView;
+
+import com.bumptech.glide.RequestManager;
+import com.bumptech.glide.request.RequestOptions;
+import com.example.ocprojet3.R;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class Dog {
+import java.io.Serializable;
+
+public class Dog implements Serializable {
 
     @SerializedName("ID")
     @Expose
@@ -29,34 +37,7 @@ public class Dog {
     @Expose
     private String photo;
 
-
-    /**
-     * No args constructor for use in serialization
-     *
-     */
-    public Dog() {
-    }
-
-    /**
-     *
-     * @param breed
-     * @param photo
-     * @param name
-     * @param id
-     * @param age
-     * @param kennelId
-     */
-    public Dog(Integer id, Integer kennelId, String name, String breed, Integer age, String photo) {
-        super();
-        this.id = id;
-        this.kennelId = kennelId;
-        this.name = name;
-        this.breed = breed;
-        this.age = age;
-        this.photo = photo;
-    }
-
-    public Integer getID() {
+    public Integer getId() {
         return id;
     }
 
@@ -96,11 +77,16 @@ public class Dog {
         this.age = age;
     }
 
-    public String getPhoto() {
-        return photo;
+    public void setPhoto(RequestManager glide, ImageView imageView) {
+        Log.e("DogClass","settingImage");
+        RequestOptions options = new RequestOptions()
+                .circleCrop()
+                .placeholder(R.mipmap.ic_launcher_round)
+                .error(R.mipmap.ic_launcher_round);
+
+        String url = "http://82.64.161.207:8080/oc-projet-3/api.php?photo=chug.jpg";
+
+        glide.load(url).apply(options).into(imageView);
     }
 
-    public void setPhoto(String photo) {
-        this.photo = photo;
-    }
 }

@@ -3,7 +3,9 @@ package com.example.ocprojet3.Models;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class Kennel {
+import java.io.Serializable;
+
+public class Kennel implements Serializable {
     @SerializedName("ID")
     @Expose
     private Integer id;
