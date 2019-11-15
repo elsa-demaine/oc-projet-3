@@ -41,6 +41,6 @@ class MyListViewHolder extends RecyclerView.ViewHolder {
 
     private void updateWithKennels(Kennel kennel){
         titleText.setText(kennel.getName());
-        subtitleText.setText(kennel.getAddressId().toString());
+        subtitleText.setText(String.format("%s (%s)", kennel.getAddress().getStreet(), kennel.getAddress().getCity().toUpperCase()));
     }
 }

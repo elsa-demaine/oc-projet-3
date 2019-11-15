@@ -31,7 +31,7 @@ public class InformationActivity extends AppCompatActivity {
             TextView breed = findViewById(R.id.dogBreed);
             breed.setText(dog.getBreed());
             TextView age = findViewById(R.id.dogAge);
-            age.setText(String.valueOf(dog.getAge()));
+            age.setText(dog.getAge() + " ans");
             ImageView photo = findViewById(R.id.dogPhoto);
             dog.setPhoto(Glide.with(this), photo);
             //Glide.with(this).load(dog.getPhoto()).apply(RequestOptions.circleCropTransform()).into(photo);

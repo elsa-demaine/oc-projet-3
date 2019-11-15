@@ -14,6 +14,10 @@ public class Kennel implements Serializable {
     @Expose
     private Integer addressId;
 
+    @SerializedName("ADDRESS")
+    @Expose
+    private Address address;
+
     @SerializedName("NAME")
     @Expose
     private String name;
@@ -35,12 +39,14 @@ public class Kennel implements Serializable {
      * @param addressId
      * @param name
      * @param capacity
+     * @param address
      */
-    public Kennel(Integer id, Integer addressId, String name, Integer capacity) {
+    public Kennel(Integer id, Integer addressId, String name, Integer capacity, Address address) {
         this.id = id;
         this.addressId = addressId;
         this.name = name;
         this.capacity = capacity;
+        this.address = address;
     }
 
     public Integer getId() {
@@ -57,6 +63,14 @@ public class Kennel implements Serializable {
 
     public void setAddressId(int addressId) {
         this.addressId = addressId;
+    }
+
+    public Address getAddress() {
+        return address;
+    }
+
+    public void setAddress(Address address) {
+        this.address = address;
     }
 
     public String getName() {
