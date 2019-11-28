@@ -1,6 +1,5 @@
 package com.example.ocprojet3.Models;
 
-import android.util.Log;
 import android.widget.ImageView;
 
 import com.bumptech.glide.RequestManager;
@@ -79,16 +78,13 @@ public class Dog implements Serializable {
     }
 
     public void setPhoto(RequestManager glide, ImageView imageView) {
-        Log.e("DogClass","settingImage");
         RequestOptions options = new RequestOptions()
                 .skipMemoryCache(true) //2
                 .diskCacheStrategy(DiskCacheStrategy.NONE)
                 .placeholder(R.mipmap.ic_launcher_round)
                 .error(R.mipmap.ic_launcher_round);
 
-        String url = "https://82.64.161.207:4433/oc-projet-3/api.php?photo=chug.jpg";
-        //String url = "https://source.unsplash.com/random?w=760";
-
+        String url = "http://82.64.161.207:8080/oc-projet-3/img/"+photo;
         glide.load(url).apply(options).into(imageView);
     }
 

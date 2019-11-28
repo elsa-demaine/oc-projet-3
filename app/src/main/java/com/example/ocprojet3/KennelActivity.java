@@ -1,11 +1,13 @@
 package com.example.ocprojet3;
 
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -45,8 +47,6 @@ public class KennelActivity extends AppCompatActivity {
 
         TextView kennelName = findViewById(R.id.tvKennelName);
         kennelName.setText(kennel.getName());
-
-        Log.e("K", "end of create");
     }
 
     @Override
@@ -62,12 +62,17 @@ public class KennelActivity extends AppCompatActivity {
     private void configureRecyclerView(){
         this.dogs = new ArrayList<>();
         // Create adapter passing in the sample user data
-        this.adapter = new MyListAdapter<Dog>(this, this.dogs, Glide.with(this));
+        this.adapter = new MyListAdapter<>(this, this.dogs, Glide.with(this));
         // Attach the adapter to the recyclerview to populate items
         rvDogs = findViewById(R.id.recyclerView_Dogs);
         rvDogs.setAdapter(this.adapter);
         // Set layout manager to position the items
-        rvDogs.setLayoutManager(new LinearLayoutManager(this));
+        if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT){
+            rvDogs.setLayoutManager(new LinearLayoutManager(this));
+        }
+        else{
+            rvDogs.setLayoutManager(new GridLayoutManager(this, 2));
+        }
     }
 
     private void configureOnClickRecyclerView(){
@@ -77,7 +82,8 @@ public class KennelActivity extends AppCompatActivity {
                 Intent intentDog = new Intent(this, InformationActivity.class);
                 intentDog.putExtra("DogClick", value);
                 startActivity(intentDog);
-            });
+            }
+        );
     }
 
     private void executeHttpRequest(String kennelId){
@@ -88,7 +94,7 @@ public class KennelActivity extends AppCompatActivity {
 
             @Override
             public void onError(Throwable e) {
-                Log.e("HttpReqK", Objects.requireNonNull(e.getMessage()));
+                Log.e("HttpRequestKennel", Objects.requireNonNull(e.getMessage()));
             }
 
             @Override

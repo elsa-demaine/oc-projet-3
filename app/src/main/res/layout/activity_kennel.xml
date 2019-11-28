@@ -25,6 +25,7 @@
             android:layout_gravity="center"
             android:textAppearance="@style/TextAppearance.AppCompat.Large"
             android:textColor="@color/colorWhite"
+            tools:text="Title"
             android:textStyle="bold" />
     </TableRow>
 

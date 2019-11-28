@@ -13,7 +13,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -33,16 +32,12 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.maps.GeoApiContext;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 
 import io.reactivex.disposables.Disposable;
 import io.reactivex.observers.DisposableObserver;
@@ -53,29 +48,14 @@ public class MainActivity extends AppCompatActivity
         implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
-    // Current Google Map
-    private GoogleMap mMap;
-
-    // Current Google Api Client
-    private GoogleApiClient mGoogleApiClient;
-
-    // Current Location Marker
-    private Marker mCurrLocationMarker;
-
-    // Last Known Location
-    private Location mLastLocation;
-
-    // Request Location permission
-    public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
-
-    static final int REQUEST_CODE = 0;
-
-    private static final int overview = 0;
-
     private Disposable disposable;
     private List<Kennel> kennels;
     private MyListAdapter<Kennel> adapter;
     private RecyclerView rvKennels;
+
+    private GoogleMap mMap; // Current Google Map
+    private GoogleApiClient mGoogleApiClient; // Current Google Api Client
+    public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99; // Request Location permission
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,11 +63,6 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        // Check if we have the correct permissions granted or not
-        /*if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            checkLocationPermission();
-        }*/
 
         // Obtain the MapView and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -98,9 +73,7 @@ public class MainActivity extends AppCompatActivity
         this.configureRecyclerView();
         this.configureOnClickRecyclerView();
         this.executeHttpRequest();
-        Log.e("TAG", "end of create");
     }
-
 
     @Override
     public void onDestroy(){
@@ -116,7 +89,7 @@ public class MainActivity extends AppCompatActivity
     private void configureRecyclerView(){
         this.kennels = new ArrayList<>();
         // Create adapter passing in the sample user data
-        this.adapter = new MyListAdapter<Kennel>(this, this.kennels, Glide.with(this));
+        this.adapter = new MyListAdapter<>(this, this.kennels, Glide.with(this));
         // Attach the adapter to the recyclerview to populate items
         rvKennels = findViewById(R.id.recyclerView_Kennels);
         rvKennels.setAdapter(this.adapter);
@@ -131,19 +104,19 @@ public class MainActivity extends AppCompatActivity
                 Intent intentKennel = new Intent(this, KennelActivity.class);
                 intentKennel.putExtra("KennelClick", value);
                 startActivity(intentKennel);
-        });
+            }
+        );
     }
 
     private void executeHttpRequest(){
         this.disposable = OcProjet3Stream.streamGetKennels().subscribeWith(new DisposableObserver<List<Kennel>>() {
             public void onNext(List<Kennel> kennels) {
-                Log.e("HttpReq","updating UI");
                 updateUI(kennels);
             }
 
             @Override
             public void onError(Throwable e) {
-                Log.e("HttpReq", Objects.requireNonNull(e.getLocalizedMessage()));
+                Log.e("HttpRequestMain", Objects.requireNonNull(e.getLocalizedMessage()));
             }
 
             @Override
@@ -156,18 +129,19 @@ public class MainActivity extends AppCompatActivity
         this.kennels.clear();
         this.kennels.addAll(kennels);
         adapter.notifyDataSetChanged();
+        updateMarkers(kennels);
     }
 
-
     //Maps methodes
-    private GeoApiContext getGeoContext() {
-        GeoApiContext geoApiContext = new GeoApiContext();
-        return geoApiContext
-                .setQueryRateLimit(3)
-                .setApiKey(getString(R.string.google_maps_key))
-                .setConnectTimeout(1, TimeUnit.SECONDS)
-                .setReadTimeout(1, TimeUnit.SECONDS)
-                .setWriteTimeout(1, TimeUnit.SECONDS);
+    private void updateMarkers(List<Kennel> kennels){
+        if(mMap != null){
+            mMap.clear();
+            for(Kennel kennel : kennels){
+                LatLng position = new LatLng(kennel.getAddress().getLatitude(), kennel.getAddress().getLongitude());
+                String title = kennel.getName();
+                mMap.addMarker(new MarkerOptions().position(position).title(title));
+            }
+        }
     }
 
     /**
@@ -200,11 +174,14 @@ public class MainActivity extends AppCompatActivity
 
         // Add a marker in Sydney and move the camera
         LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("I am in Sydney!"));
+        //mMap.addMarker(new MarkerOptions().position(sydney).title("I am in Sydney!"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
 
         // Set the map on hybrid type
         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        mMap.getUiSettings().setAllGesturesEnabled(true);
+        mMap.getUiSettings().setZoomControlsEnabled(true);
+        mMap.getUiSettings().setMyLocationButtonEnabled(true);
 
         // Initialize Google Play Services
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -231,7 +208,7 @@ public class MainActivity extends AppCompatActivity
      * Fused Location Provider analyses GPS, network and Wi-Fi location data in order to provide
      * the highest accuracy. It uses different sensors to know if the user is walking, riding a
      * bike, driving, or standing, in order to adapt the frequency of location updates.
-     * @param bundle
+     * @param bundle bundle
      */
     @Override
     public void onConnected(@Nullable Bundle bundle) {
@@ -259,7 +236,6 @@ public class MainActivity extends AppCompatActivity
                 // Got last known location. In some rare situations this can be null.
                 if (location != null) {
                     // Get new location and move Camera
-                    mLastLocation = location;
                     LatLng newLatLng = new LatLng(location.getLatitude(), location.getLongitude());
                     mMap.moveCamera(CameraUpdateFactory.newLatLng(newLatLng));
                     mMap.animateCamera(CameraUpdateFactory.zoomTo(16));
@@ -268,61 +244,17 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-
     /**
      * This method is launched everytime the user's location changes
      * @param location newest location
      */
     @Override
     public void onLocationChanged(Location location) {
-        mLastLocation = location;
-        if (mCurrLocationMarker != null) {
-            mCurrLocationMarker.remove();
-        }
-
         // Put current location marker with Magenta color
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-        MarkerOptions markerOptions = new MarkerOptions();
-        markerOptions.position(latLng);
-        markerOptions.title("Emplacement actuel");
-        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
-        mCurrLocationMarker = mMap.addMarker(markerOptions);
         // move map camera
         mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
         mMap.animateCamera(CameraUpdateFactory.zoomTo(16));
-    }
-
-    /**
-     * Method to check if the user has granted the location permissions
-     * @return true if location permissions are granted, false if not.
-     */
-    public boolean checkLocationPermission(){
-        if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-
-            // Asking user if explanation is needed
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.ACCESS_FINE_LOCATION)) {
-
-                // Show an exp;anation to the user *asynchronously* -- don't block
-                // this thread waiting for the user's response! After the user
-                // sees the explanation, try again to request the permission.
-
-                //Prompt the user once explanation has been shown
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                        MY_PERMISSIONS_REQUEST_LOCATION);
-            } else {
-                // No explanation needed, we can request the permission.
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                        MY_PERMISSIONS_REQUEST_LOCATION);
-            }
-            return false;
-        } else {
-            return true;
-        }
     }
 
     /**
@@ -332,8 +264,7 @@ public class MainActivity extends AppCompatActivity
      * @param grantResults the results that are granted
      */
     @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == MY_PERMISSIONS_REQUEST_LOCATION) {// If request is cancelled, the result arrays are empty.
             if (grantResults.length > 0
                     && grantResults[0] == PackageManager.PERMISSION_GRANTED) {

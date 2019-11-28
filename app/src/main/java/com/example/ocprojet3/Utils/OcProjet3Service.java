@@ -21,9 +21,6 @@ public interface OcProjet3Service {
     @GET("api.php")
     Observable<List<Dog>> getDogs(@Query("kennelId") String kennelId);
 
-    @GET("api.php")
-    Observable<Dog> getDog(@Query("dogId") String dogId);
-
     Retrofit retrofit = new Retrofit.Builder()
         .baseUrl(baseUrl)
         .addConverterFactory(GsonConverterFactory.create())

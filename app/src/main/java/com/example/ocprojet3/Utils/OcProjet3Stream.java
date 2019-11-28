@@ -27,12 +27,4 @@ public class OcProjet3Stream {
                 .observeOn(AndroidSchedulers.mainThread())
                 .timeout(10, TimeUnit.SECONDS);
     }
-
-    public static Observable<Dog> streamGetDog(String dogId){
-        OcProjet3Service ocProjet3Service = OcProjet3Service.retrofit.create(OcProjet3Service.class);
-        return ocProjet3Service.getDog(dogId)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .timeout(10, TimeUnit.SECONDS);
-    }
 }
